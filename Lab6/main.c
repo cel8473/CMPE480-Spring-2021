@@ -21,14 +21,15 @@ int main(void) {
 	// Print welcome over serial
 	uart0_put("Running... \n\r");
 	
+	#if 0
 	//Part 1 - UNCOMMENT THIS
 	// Generate 20% duty cycle at 10kHz
 	// INSERT CODE HERE
-	//FTM0_set_duty_cycle(20, 10000, 1);
+	FTM0_set_duty_cycle(20, 10000, 1);
 	
-	//for(;;) ;  //then loop forever
-	
-	
+	for(;;) ;  //then loop forever
+	#endif
+	#if 0
 	// Part 2 - UNCOMMENT THIS
 	for(;;)  //loop forever
 	{
@@ -78,7 +79,9 @@ int main(void) {
 		}
 
 	}
+	#endif
 	
+	#if 1
 	//Enable clocks on Port D
 	SIM_SCGC5 |= SIM_SCGC5_PORTD_MASK;
 	//Configure the Signal Mux for the Port D GPIO Pins
@@ -98,49 +101,50 @@ int main(void) {
 	
 	while(true){
 		//Turn off all coils. Set GPIO pins to 0
-		GPIOD_PSOR|=(1<<0); //A
-		GPIOD_PSOR|=(1<<1); //B
-		GPIOD_PSOR|=(1<<2); //C 
-		GPIOD_PSOR|=(1<<3); //D
+		GPIOD_PCOR|=(1<<0); //A
+		GPIOD_PCOR|=(1<<1); //B
+		GPIOD_PCOR|=(1<<2); //C 
+		GPIOD_PCOR|=(1<<3); //D
 		
 		//Set one pin high at a time
 		if(forward){
 			if(phase == 0){
 				/*turn on coil A*/
-				GPIOD_PCOR=(1<<0);
+				GPIOD_PSOR=(1<<0);
 				phase++;} //A, 1a
 			else if(phase == 1){
 				/*turn on coil B*/
-				GPIOD_PCOR=(1<<1);
+				GPIOD_PSOR=(1<<1);
 				phase++;} //B, 2a
 			else if(phase == 2){
 				/*turn on coil C*/
-				GPIOD_PCOR=(1<<2);
+				GPIOD_PSOR=(1<<2);
 				phase++;} //C, 1b
 			else{
 				/*turn on coil D*/
-				GPIOD_PCOR=(1<<3);
+				GPIOD_PSOR=(1<<3);
 				phase++;} //D, 2b
 		}
 		else{//reverse
 				if(phase == 0){
 				/*turn on coil D*/
-				GPIOD_PCOR=(1<<3);
+				GPIOD_PSOR=(1<<3);
 				phase++;} //D, 2b
 			else if(phase == 1){
 				/*turn on coil C*/
-				GPIOD_PCOR=(1<<2);
+				GPIOD_PSOR=(1<<2);
 				phase++;} //C, 1b
 			else if(phase == 2){
 				/*turn on coil B*/
-				GPIOD_PCOR=(1<<1);
+				GPIOD_PSOR=(1<<1);
 				phase++;} //B, 2a
 			else{
 				/*turn on coil A*/
-				GPIOD_PCOR=(1<<0);
+				GPIOD_PSOR=(1<<0);
 				phase++;} //A, 1a
 		}
 	}
+	#endif
 	return 0;
 }
 
