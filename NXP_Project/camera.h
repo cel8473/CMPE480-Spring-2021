@@ -5,7 +5,6 @@ Name: Chris Larson
 Date: 3/21/21
 */
 #include "MK64F12.h"                    // Device header
-#include "adc.h"
 
 #if 0
 void init_FTM2(void);
@@ -19,3 +18,5 @@ void ADC0_IRQHandler(void);
 
 void init_camera(void);
 int edgeFinder(uint16_t line[], int side);
+int find_center(int left, int right);
+int sum_line(uint16_t line[]);

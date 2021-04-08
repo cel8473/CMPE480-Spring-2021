@@ -18,5 +18,9 @@ void drive_forward(unsigned int duty_cycle);
 
 void drive_backward(unsigned int duty_cycle);
 
+void drive_wheels(unsigned int speed, int sum);
+
 void turn_wheels(double duty_cycle);
+
+void wheel_adjust(int middle, int sum);
 #endif

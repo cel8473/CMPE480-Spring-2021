@@ -14,7 +14,7 @@
 #include "camera.h"
 #include "motor.h"
 
-
+#define PRINT (0)
 // line stores the current array of camera data
 extern uint16_t line[128];
 
@@ -26,12 +26,10 @@ extern char str[100];
 
 void delay(int del);
 
-
-int main(void) {
+int main(void){
 	// Initialize UART and PWM
-  	uart0_init();
+  uart0_init();
 	uart3_init(); //Uart for Bluetooth module and PuTTy
-	HBridge_init(); //H-bridge that amplifies the K64 power
 	init_motor();
 	init_camera();
 
@@ -42,39 +40,26 @@ int main(void) {
 	//Camera is in Lab 5 PT3
 	int left = -1;
 	int right = -1;
+	int middle = -1;
 	for(;;){
+		// Find edges of data frmo the camera
 		left = edgeFinder(line, 1);
 		right = edgeFinder(line, 0);
-		sprintf(str,"%i : %i\n\r", left, right);
-		uart0_put(str);
-		delay(100);
-	}
-	//FTM3_set_duty_cycle(5.6, 50); //5.2-8.6
-	//FTM0_set_duty_cycle(50, 10000, 1);
-	#if 0
-	for(;;) {
-		if (debugcamdata) {
-			// Every 2 seconds
-			//if (capcnt >= (2/INTEGRATION_TIME)) {
-			if (capcnt >= (500)) {
-				GPIOB_PCOR |= (1 << 22);
-				// send the array over uart
-				sprintf(str,"%i\n\r",-1); // start value
-				uart0_put(str);
-				for (int i = 0; i < 127; i++) {
-					sprintf(str,"%i\n", line[i]);
-					uart0_put(str);
-				}
-				sprintf(str,"%i\n\r",-2); // end value
-				uart0_put(str);
-				capcnt = 0;
-				GPIOB_PSOR |= (1 << 22);
-			}
+		// Center of camera data
+		middle = find_center(left,right);
+		
+		// Adjust the wheel towards center 
+		int sum  = sum_line(line);
+		wheel_adjust(middle, sum);
+		
+		if(PRINT)
+		{
+			sprintf(str,"%i : %i -- %i, sum: %i \n\r", left, right, middle, sum);
+			
+			uart0_put(str);
+			delay(50);
 		}
-
 	}
-	#endif
-	
 }
 
 

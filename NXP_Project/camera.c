@@ -32,10 +32,7 @@
 #include "./modules/adc.h"
 #include "./modules/pit.h"
 
-
-#define CARPET_THRESHOLD (4500)
-
-#define trackThreshold 20000
+#define TRACK_THRESHOLD 20000
 
 void init_camera(void)
 {
@@ -54,13 +51,13 @@ int edgeFinder(uint16_t line[], int side){
 		switch(side){
 			case 1:
 				for(int i = 0; i < 128; i++){
-					if(line[i] > trackThreshold){
+					if(line[i] > TRACK_THRESHOLD){
 						return i;
 					}
 				}
 			case 0:
 				for(int i = 128; i >= 0; i--){
-					if(line[i] > trackThreshold){
+					if(line[i] > TRACK_THRESHOLD){
 						return i;
 					}
 				}
@@ -69,16 +66,23 @@ int edgeFinder(uint16_t line[], int side){
 		}
 }
 
-int find_center(int left, int right)
+// Takes the left most edge and the right most edge 
+// of the camera array and finds mid point between the two
+int find_center(int left, int right){
+	int middle = (left+right)/2;
+	middle = middle*100/120;
+	return middle;
+}
 
-
-
-
-
-
-
-
-
-
-
+int sum_line(uint16_t line[])
+{
+	int sum = 0;
+	for(int i = 0 ; i < 128;i++)
+	{
+			if(line[i]>=TRACK_THRESHOLD){
+					sum += 1;
+			}
+	}
+	return sum;
+}
 
