@@ -27,11 +27,23 @@
 #include "stdio.h"
 #include "led.h"
 #include "camera.h"
+#include "./modules/gpio.h"
+#include "./modules/ftm.h"
+#include "./modules/adc.h"
+#include "./modules/pit.h"
 
 
 #define CARPET_THRESHOLD (4500)
 
 #define trackThreshold 20000
+
+void init_camera(void)
+{
+	init_GPIO(); //For CLK and SI output on GPIO
+	init_FTM2(); //To generate CLK, SI, and trigger ADC
+	init_ADC0(); //Don't ask why they changed their naming convention, wasn't me
+	init_PIT(); //To trigger camera read based on integration time
+}
 
 /*
 	Finds the two edges of the line

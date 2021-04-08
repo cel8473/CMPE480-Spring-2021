@@ -11,6 +11,7 @@
  
 #include "MK64F12.h"
 #include "./modules/ftm.h"
+#include "./modules/gpio.h"
 
 #define PWM_MULT_FACTOR (0.034)
 #define PWM_CONST       (5.2)
@@ -23,6 +24,7 @@ void init_motor(void)
 {
   FTM0_init();
   FTM3_init();
+  HBridge_init();
 }
 void drive_forward(unsigned int duty_cycle)
 {

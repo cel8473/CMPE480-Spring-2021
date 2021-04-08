@@ -13,9 +13,7 @@
 #include "led.h"
 #include "camera.h"
 #include "motor.h"
-#include "./modules/gpio.h"
-#include "./modules/ftm.h"
-#include "./modules/gpio.h"
+
 
 // line stores the current array of camera data
 extern uint16_t line[128];
@@ -31,15 +29,11 @@ void delay(int del);
 
 int main(void) {
 	// Initialize UART and PWM
-  uart0_init();
+  	uart0_init();
 	uart3_init(); //Uart for Bluetooth module and PuTTy
 	HBridge_init(); //H-bridge that amplifies the K64 power
-	FTM0_init(); //FTM0 for the two rear motors
-	FTM3_init(); //FTM3 for the steering servo motor
-	init_GPIO(); //For CLK and SI output on GPIO
-	init_FTM2(); //To generate CLK, SI, and trigger ADC
-	init_ADC0(); //Don't ask why they changed their naming convention, wasn't me
-	init_PIT(); //To trigger camera read based on integration time
+	init_motor();
+	init_camera();
 
 	// Print welcome over serial
 	uart0_put("Running... \n\r");
