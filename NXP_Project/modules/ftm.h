@@ -16,7 +16,8 @@ void init_FTM2(void);
 void FTM2_IRQHandler(void);
 
 // DC Motor
-void FTM0_set_duty_cycle(unsigned int duty_cycle, unsigned int frequency, int dir);
+void FTM0_set_duty_cycle_left(int duty_cycle, unsigned int frequency);
+void FTM0_set_duty_cycle_right(int duty_cycle, unsigned int frequency);
 void FTM0_init();
 
 // PWM for servo

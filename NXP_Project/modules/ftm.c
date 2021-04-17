@@ -144,22 +144,36 @@ void FTM2_IRQHandler(void){ //For FTM timer
  * @param frequency (~1000 Hz to 20000 Hz)
  * @param dir: 1 for pin C4 active, else pin C3 active 
  */
-void FTM0_set_duty_cycle(unsigned int duty_cycle, unsigned int frequency, int dir)
+void FTM0_set_duty_cycle_left(int duty_cycle, unsigned int frequency)
 {
 	// Calculate the new cutoff value
 	uint16_t mod = (uint16_t) (((DEFAULT_SYSTEM_CLOCK / frequency) * duty_cycle) / 100);
-  
+  int dir = duty_cycle >= 0 ? 0 : 1;
+	// Set outputs 
+	if(dir) {
+			FTM0_C1V = mod;
+			FTM0_C0V = 0;
+	} else {
+			FTM0_C0V = mod;
+			FTM0_C1V = 0;
+	}
+
+	// Update the clock to the new frequency
+	FTM0_MOD = (DEFAULT_SYSTEM_CLOCK / frequency);
+}
+
+void FTM0_set_duty_cycle_right(int duty_cycle, unsigned int frequency)
+{
+	// Calculate the new cutoff value
+	uint16_t mod = (uint16_t) (((DEFAULT_SYSTEM_CLOCK / frequency) * duty_cycle) / 100);
+  int dir = duty_cycle >= 0 ? 0 : 1;
 	// Set outputs 
 	if(dir) {
 	    FTM0_C3V = mod;
-			FTM0_C1V = mod;
 	    FTM0_C2V = 0;
-			FTM0_C0V = 0;
 	} else {
 	    FTM0_C2V = mod;
-			FTM0_C0V = mod;
 	    FTM0_C3V = 0;
-			FTM0_C1V = 0;
 	}
 
 	// Update the clock to the new frequency

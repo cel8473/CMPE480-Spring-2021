@@ -18,7 +18,7 @@
 // Don't exceed 100ms or the caps will saturate
 // Must be above 1.25 ms based on camera clk 
 //	(camera clk is the mod value set in FTM2)
-#define INTEGRATION_TIME .0075f
+#define INTEGRATION_TIME .005f
 
 // These variables are for streaming the camera
 //	 data over UART
