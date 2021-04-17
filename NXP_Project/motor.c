@@ -16,16 +16,23 @@
 #define PWM_MULT_FACTOR (0.034)
 #define PWM_CONST       (5.2)
 #define MOTOR_FREQ      (10000) // 10kHz Frequency
-#define FORWARD         (0)
-#define BACKWARD        (~FORWARD)
 #define SERVO_FREQ      (50)
-#define LEFT (48)
-#define	RIGHT (55)
-#define LEFT_ADJUSTER  (30)
-#define RIGHT_ADJUSTER (30)
 #define CARPET (15)
-#define STRAIGHT_SPEED (60)
-#define TURN_SPEED (45)
+#define STRAIGHT_SPEED (50)
+#define TURN_SPEED (40)
+#define DESIRED_POSITION (54)
+
+struct PID{
+	double turnAmt;
+	double turnOld;
+	double err;
+	double errOld1;
+	double errOld2;
+	double Kp;
+	double Ki;
+	double Kd;
+	int sum;
+};
 
 // Initializes the camera
 void init_motor(void)
@@ -36,53 +43,56 @@ void init_motor(void)
 }
 
 // Drives the car forward with a given duty cycle value
-void drive_forward(unsigned int duty_cycle)
+void drive(int dc_left, int dc_right)
 {
-  FTM0_set_duty_cycle(duty_cycle,MOTOR_FREQ, FORWARD);
+	FTM0_set_duty_cycle_right(dc_right,MOTOR_FREQ);
+	FTM0_set_duty_cycle_left(dc_left,MOTOR_FREQ);
 }
 
-// Drives the car backward with a given duty cycle value
-void drive_backward(unsigned int duty_cycle)
-{
-  FTM0_set_duty_cycle(duty_cycle,MOTOR_FREQ, BACKWARD);
-}
-
-void drive_wheels(unsigned int speed, int sum){
+void drive_wheels(int left_speed, int right_speed, int sum){
 	if(sum < CARPET){
-		drive_forward(0);
+		drive(0, 0);
 	}
 	else{
-		drive_forward(speed);
+		drive(left_speed, right_speed);
 	}
 }
 
 /** 
  * Double duty_cycle - Requires a value from 0 - 100
  */
-void turn_wheels(double duty_cycle)
+void turn_wheels(double duty_cycle, int sum)
 {
   FTM3_set_duty_cycle(duty_cycle * PWM_MULT_FACTOR + PWM_CONST, SERVO_FREQ);
+	int left_speed, right_speed;
+	if(duty_cycle<60 && duty_cycle>40){
+		left_speed = STRAIGHT_SPEED;
+		right_speed = STRAIGHT_SPEED;
+	}else if(duty_cycle>=60){
+		left_speed = TURN_SPEED-10;
+		right_speed = TURN_SPEED;
+	}else{
+		left_speed = TURN_SPEED;
+		right_speed = TURN_SPEED-10;
+	}
+	drive_wheels(left_speed, right_speed, sum);
 }
 
-// Adjusts the wheels of the car given the mid point from the camera array
-void wheel_adjust(int middle, int sum){
-	if(middle >= LEFT && middle <= RIGHT){
-		turn_wheels(50.0);
-		drive_wheels(STRAIGHT_SPEED, sum);
+struct PID turn_amount(int middle, struct PID cont){
+	cont.err=DESIRED_POSITION-middle;
+	cont.turnAmt = cont.turnOld - cont.Kp*(cont.err-cont.errOld1) - cont.Ki*(cont.err+cont.errOld1)/2 - cont.Kd*(cont.err-2*cont.errOld1+cont.errOld2);
+	if(cont.turnAmt > 100){
+		cont.turnAmt = 100;
 	}
-	else if(middle > RIGHT)
-	{
-		middle = (middle + RIGHT_ADJUSTER) <= 100 ? middle + RIGHT_ADJUSTER: 100;
-		turn_wheels((double)middle);
-		drive_wheels(TURN_SPEED, sum);
+	else if(cont.turnAmt < -100){
+		cont.turnAmt = -100;
 	}
-	else if(middle < LEFT)
-	{
-		middle = (middle - LEFT_ADJUSTER) >= 0 ? middle - LEFT_ADJUSTER: 0;
-		turn_wheels((double)middle);
-		drive_wheels(TURN_SPEED, sum);
-	}
+	cont.turnOld = cont.turnAmt;
+	cont.errOld2 = cont.errOld1;
+	cont.errOld1 = cont.err;
+	cont.turnAmt = (cont.turnAmt+100)/2;
+	turn_wheels(cont.turnAmt, cont.sum);
+	return cont;
 }
-
 
 #endif

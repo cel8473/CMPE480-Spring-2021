@@ -14,6 +14,7 @@
 #include "camera.h"
 #include "motor.h"
 
+#define DESIRED (53)
 #define PRINT (0)
 // line stores the current array of camera data
 extern uint16_t line[128];
@@ -32,36 +33,36 @@ int main(void){
 	uart3_init(); //Uart for Bluetooth module and PuTTy
 	init_motor();
 	init_camera();
-
-	// Print welcome over serial
-	uart0_put("Running... \n\r");
 	
+	if(PRINT){
+		sprintf(str, "Running... Print: %i\n\r", PRINT);
+		uart0_put(str);
+	}
 	//Bluetooth is in Lab 4
 	//Camera is in Lab 5 PT3
 	int left = -1;
 	int right = -1;
 	int middle = -1;
+	//			turn turnOld error errorOld1 errodOld2 Kp		Ki	Kd	Sum
+	struct PID control = {0.0, 0.0, 0.0, 0.0, 0.0, 6, 0, 0.6, 0};
 	for(;;){
 		// Find edges of data frmo the camera
 		left = edgeFinder(line, 1);
 		right = edgeFinder(line, 0);
 		// Center of camera data
 		middle = find_center(left,right);
-		
-		// Adjust the wheel towards center 
-		int sum  = sum_line(line);
-		wheel_adjust(middle, sum);
-		
-		if(PRINT)
-		{
-			sprintf(str,"%i : %i -- %i, sum: %i \n\r", left, right, middle, sum);
-			
+		//Find how many bits out of 128 are high
+		//int sum = sum_line(line);
+		control.sum = sum_line(line);
+		turn_amount(middle, control);
+		if(PRINT){
+			// Print welcome over serial
+			sprintf(str,"%i\n\r", middle);
 			uart0_put(str);
 			delay(50);
 		}
 	}
 }
-
 
 /**
  * Waits for a delay (in milliseconds)
@@ -74,4 +75,3 @@ void delay(int del){
 		// Do nothing
 	}
 }
-
