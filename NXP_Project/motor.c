@@ -3,36 +3,16 @@
  * Purpose:     Provide Motor  functionality
  *
  * Notes:		
- *
  */
-
-#ifndef MOTOR_H
-#define MOTOR_H
  
 #include "MK64F12.h"
 #include "./modules/ftm.h"
 #include "./modules/gpio.h"
+#include "./motor.h"
 
-#define PWM_MULT_FACTOR (0.034)
-#define PWM_CONST       (5.2)
-#define MOTOR_FREQ      (10000) // 10kHz Frequency
-#define SERVO_FREQ      (50)
-#define CARPET (15)
-#define STRAIGHT_SPEED (50)
-#define TURN_SPEED (40)
-#define DESIRED_POSITION (54)
-
-struct PID{
-	double turnAmt;
-	double turnOld;
-	double err;
-	double errOld1;
-	double errOld2;
-	double Kp;
-	double Ki;
-	double Kd;
-	int sum;
-};
+#define DELAY (0)
+double turn_speed;
+double straight_speed;
 
 // Initializes the camera
 void init_motor(void)
@@ -65,20 +45,27 @@ void turn_wheels(double duty_cycle, int sum)
 {
   FTM3_set_duty_cycle(duty_cycle * PWM_MULT_FACTOR + PWM_CONST, SERVO_FREQ);
 	int left_speed, right_speed;
-	if(duty_cycle<60 && duty_cycle>40){
-		left_speed = STRAIGHT_SPEED;
-		right_speed = STRAIGHT_SPEED;
-	}else if(duty_cycle>=60){
-		left_speed = TURN_SPEED-10;
-		right_speed = TURN_SPEED;
-	}else{
-		left_speed = TURN_SPEED;
-		right_speed = TURN_SPEED-10;
+	int turn_scaling = 0.04*(duty_cycle-50)*(duty_cycle-50);
+	if(duty_cycle<60 && duty_cycle>40){ //straight
+		left_speed = straight_speed;
+		right_speed = straight_speed;
+	}else if(duty_cycle>=60 && duty_cycle<=75){ //soft right
+		left_speed = turn_speed; 
+		right_speed = turn_speed;
+	}else if(duty_cycle<=40 && duty_cycle>=25){ //soft left
+		left_speed = turn_speed;
+		right_speed = turn_speed-10;
+	}else if(duty_cycle>75){ //hard right
+		left_speed = turn_speed-20;
+		right_speed = turn_speed-10;
+	}else if(duty_cycle<25){ //hard left
+		left_speed = turn_speed-10;
+		right_speed = turn_speed-20;
 	}
 	drive_wheels(left_speed, right_speed, sum);
 }
 
-struct PID turn_amount(int middle, struct PID cont){
+PID_T turn_amount(int middle, PID_T cont){
 	cont.err=DESIRED_POSITION-middle;
 	cont.turnAmt = cont.turnOld - cont.Kp*(cont.err-cont.errOld1) - cont.Ki*(cont.err+cont.errOld1)/2 - cont.Kd*(cont.err-2*cont.errOld1+cont.errOld2);
 	if(cont.turnAmt > 100){
@@ -95,4 +82,33 @@ struct PID turn_amount(int middle, struct PID cont){
 	return cont;
 }
 
-#endif
+void set_straight_speed(double speed)
+{
+	straight_speed = speed;
+}
+
+double get_straight_speed()
+{
+	return straight_speed;
+}
+void set_turn_speed(double speed)
+{
+	turn_speed = speed;
+}
+
+double get_turn_speed()
+{
+	return turn_speed;
+}
+
+/**
+ * Waits for a delay (in milliseconds)
+ * 
+ * del - The delay in milliseconds
+ */
+void motor_delay(int del){
+	volatile int i;
+	for (i=0; i<del*50000; i++){
+		// Do nothing
+	}
+}
