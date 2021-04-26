@@ -32,7 +32,7 @@
 #include "./modules/adc.h"
 #include "./modules/pit.h"
 
-#define TRACK_THRESHOLD 20000
+#define TRACK_THRESHOLD 18000
 
 void init_camera(void)
 {
@@ -85,4 +85,3 @@ int sum_line(uint16_t line[])
 	}
 	return sum;
 }
-

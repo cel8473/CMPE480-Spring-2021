@@ -17,14 +17,14 @@
 #include "./modules/gpio.h"
 
 #define DESIRED (53)
-#define PRINT (1) //This is commented out currently
+#define PRINT (0) //This is commented out currently
 #define BLUETOOTH (0)
 #define BUTTON (0)
 #define CHAR_COUNT (80)
-#define FAST_AF (70)
+#define FAST_AF (90)
 #define	MEDIUM (FAST_AF-10)
 #define SLOW (FAST_AF-20)
-#define MINUS_TURN (15)
+#define MINUS_TURN (35)
 // line stores the current array of camera data
 extern uint16_t line[128];
 
@@ -60,7 +60,7 @@ int main(void){
 	int right = -1;
 	int middle = -1;
 	//	turn turnOld error errorOld1 errodOld2 Kp	 Ki	 Kd	Sum
-	PID_T control = {0.0, 0.0, 0.0, 0.0, 0.0, 10.0, 0, 0, 0};
+	PID_T control = {0.0, 0.0, 0.0, 0.0, 0.0, 13.0, 0.0, -1.4, 0};
 	mode = 0;
 	button(mode);
 	for(;;){
@@ -83,21 +83,32 @@ int main(void){
 			{
 				char ch =(char) UART3_D;
 				
-				if (ch == '\n')
+				if (ch == '\n' || ch=='\r')
 				{
-					phone_buffer[phone_counter++] = '\0';
+					phone_buffer[phone_counter++] = '\r';
+					phone_buffer[phone_counter++]='\n';
+					phone_buffer[phone_counter++]=0x00;
 					phone_counter = 0;
 					
 					char *end_ptr;
+					double temp_kp;
+					double temp_kd;
+					double temp_ki;
+					double temp_ts;
+					double temp_ss; 
+					put3(phone_buffer);
+					/*
 					control.Kp = strtod(phone_buffer,&end_ptr);
 					control.Ki = strtod(end_ptr, &end_ptr);
 					control.Kd = strtod(end_ptr, &end_ptr);
-					set_turn_speed(strtod(end_ptr, &end_ptr));
-					set_straight_speed(strtod(end_ptr, &end_ptr));
-					
+					temp_ts = strtod(end_ptr, &end_ptr);
+					temp_ss = strtod(end_ptr, &end_ptr);
+					set_turn_speed(temp_ts);
+					set_straight_speed(temp_ss);
 					sprintf(str,"kp = %f, ki = %f, kd = %f, ts = %f, ss = %f \n",
 								control.Kp, control.Ki, control.Kd, get_turn_speed(), get_straight_speed());
-					put3(str);
+					
+					put3(str);*/
 					for(int i = 0; i < CHAR_COUNT; i++)
 					{
 						phone_buffer[i] = '\0';
@@ -105,8 +116,9 @@ int main(void){
 				}
 				else
 				{
-					phone_buffer[phone_counter++] = ch;
-					phone_buffer[phone_counter] = '\0';
+					phone_buffer[phone_counter] = ch;
+					phone_counter++;
+					//phone_buffer[phone_counter] = '\0';
 					if(phone_counter == CHAR_COUNT)
 					{
 						phone_buffer[CHAR_COUNT-1] = '\0';
@@ -115,12 +127,12 @@ int main(void){
 			}
 		}
 			
-		if(PRINT){
+		/*if(PRINT){
 			// Print welcome over serial
 			sprintf(str,"%f\n\r", control.turnAmt);
 			uart0_put(str);
 			//delay(50);
-		}
+		}*/
 	}
 }
 

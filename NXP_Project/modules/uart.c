@@ -77,6 +77,8 @@ void uart3_init()
 //Configure the port control register to alternative 3 (which is UART mode for K64)
 	PORTB_PCR11|=PORT_PCR_MUX(3);
 	PORTB_PCR10|=PORT_PCR_MUX(3);
+	PORTB_PCR11|=PORT_PCR_DSE_MASK;
+	PORTB_PCR10|=PORT_PCR_DSE_MASK;
 /*Configure the UART for establishing serial communication*/
 
 //Disable transmitter and receiver until proper settings are chosen for the UART module

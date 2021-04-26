@@ -43,31 +43,41 @@ void drive_wheels(int left_speed, int right_speed, int sum){
  */
 void turn_wheels(double duty_cycle, int sum)
 {
+	int turn_scaling = 0.04*(duty_cycle-50)*(duty_cycle-50);
   FTM3_set_duty_cycle(duty_cycle * PWM_MULT_FACTOR + PWM_CONST, SERVO_FREQ);
 	int left_speed, right_speed;
-	int turn_scaling = 0.04*(duty_cycle-50)*(duty_cycle-50);
-	if(duty_cycle<60 && duty_cycle>40){ //straight
+	int right_bound = 60;
+	int left_bound = 40;
+	turn_scaling = turn_scaling > 85 ? 85 : turn_scaling;
+	if(duty_cycle<right_bound && duty_cycle>left_bound)
+	{ //straight
 		left_speed = straight_speed;
 		right_speed = straight_speed;
-	}else if(duty_cycle>=60 && duty_cycle<=75){ //soft right
-		left_speed = turn_speed; 
-		right_speed = turn_speed;
-	}else if(duty_cycle<=40 && duty_cycle>=25){ //soft left
-		left_speed = turn_speed;
-		right_speed = turn_speed-10;
-	}else if(duty_cycle>75){ //hard right
-		left_speed = turn_speed-20;
-		right_speed = turn_speed-10;
-	}else if(duty_cycle<25){ //hard left
-		left_speed = turn_speed-10;
-		right_speed = turn_speed-20;
+	}
+	else if(duty_cycle>=right_bound)
+	{ //right
+		left_speed = turn_speed*(1-turn_scaling/100) * DIFF_FACTOR; 
+		right_speed = turn_speed*(1-turn_scaling/100);
+	}
+	else if(duty_cycle<= left_bound)
+	{ //left
+		left_speed = turn_speed*(1-turn_scaling/100);
+		right_speed = turn_speed*(1-turn_scaling/100)*DIFF_FACTOR;
 	}
 	drive_wheels(left_speed, right_speed, sum);
 }
 
 PID_T turn_amount(int middle, PID_T cont){
 	cont.err=DESIRED_POSITION-middle;
-	cont.turnAmt = cont.turnOld - cont.Kp*(cont.err-cont.errOld1) - cont.Ki*(cont.err+cont.errOld1)/2 - cont.Kd*(cont.err-2*cont.errOld1+cont.errOld2);
+	cont.turnAmt= cont.turnOld - cont.Kp*(cont.err-cont.errOld1) - cont.Ki*(cont.err+cont.errOld1)/2 - cont.Kd*(cont.err-2*cont.errOld1+cont.errOld2);
+	//Boost
+	if(cont.turnAmt >= 75){
+		cont.turnAmt *= BOOST;
+	}
+	else if(cont.turnAmt <= -75){
+		cont.turnAmt *= BOOST;
+	}
+	//Capped
 	if(cont.turnAmt > 100){
 		cont.turnAmt = 100;
 	}

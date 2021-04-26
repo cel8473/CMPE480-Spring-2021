@@ -18,7 +18,8 @@
 #define SERVO_FREQ      (50)
 #define CARPET (15)
 #define DESIRED_POSITION (53)
-
+#define DIFF_FACTOR (0.1)
+#define BOOST (1.5)
 
 typedef struct PID_S {
 	double turnAmt;
