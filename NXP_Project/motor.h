@@ -16,7 +16,8 @@
 #define PWM_CONST       (5.2)
 #define MOTOR_FREQ      (10000) // 10kHz Frequency
 #define SERVO_FREQ      (50)
-#define CARPET (15)
+#define CARPET_SUM (15)
+#define CARPET (1)
 #define DESIRED_POSITION (53)
 #define DIFF_FACTOR (0.1)
 #define BOOST (1.5)

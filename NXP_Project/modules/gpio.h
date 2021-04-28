@@ -14,6 +14,8 @@ void LED_Init(void);
 void LED_On (unsigned char color);
 void LED_Off(void);
 void Switch2_Init(void);
+void Switch3_Init(void);
+unsigned char Switch3_Pressed(void);
 unsigned char Switch2_Pressed(void);
 void init_GPIO(void);
 void HBridge_init();

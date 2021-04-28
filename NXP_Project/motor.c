@@ -30,10 +30,14 @@ void drive(int dc_left, int dc_right)
 }
 
 void drive_wheels(int left_speed, int right_speed, int sum){
-	if(sum < CARPET){
-		drive(0, 0);
-	}
-	else{
+	if(CARPET){
+		if(sum < CARPET_SUM){
+			drive(0, 0);
+		}
+		else{
+			drive(left_speed, right_speed);
+		}
+	}else{
 		drive(left_speed, right_speed);
 	}
 }
@@ -46,9 +50,9 @@ void turn_wheels(double duty_cycle, int sum)
 	int turn_scaling = 0.04*(duty_cycle-50)*(duty_cycle-50);
   FTM3_set_duty_cycle(duty_cycle * PWM_MULT_FACTOR + PWM_CONST, SERVO_FREQ);
 	int left_speed, right_speed;
-	int right_bound = 60;
-	int left_bound = 40;
-	turn_scaling = turn_scaling > 85 ? 85 : turn_scaling;
+	int right_bound = 63;
+	int left_bound = 37;
+	turn_scaling = turn_scaling > 80 ? 80 : turn_scaling;
 	if(duty_cycle<right_bound && duty_cycle>left_bound)
 	{ //straight
 		left_speed = straight_speed;
