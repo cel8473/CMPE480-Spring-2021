@@ -21,9 +21,9 @@
 #define BLUETOOTH (1)
 #define BUTTON (1)
 #define CHAR_COUNT (80)
-#define FAST_AF (90)
-#define	MEDIUM (FAST_AF-10)
-#define SLOW (FAST_AF-20)
+#define FAST_AF (85)
+#define	MEDIUM (FAST_AF-5)
+#define SLOW (FAST_AF-10)
 #define MINUS_TURN (20)
 // line stores the current array of camera data
 extern uint16_t line[128];
@@ -60,7 +60,7 @@ int main(void){
 	int right = -1;
 	int middle = -1;
 	//	turn turnOld error errorOld1 errodOld2 Kp	 Ki	 Kd	Sum
-	PID_T control = {0.0, 0.0, 0.0, 0.0, 0.0, 12.75, 0.0, -1.1, 0};
+	PID_T control = {0.0, 0.0, 0.0, 0.0, 0.0, 12.75, 0.0, -1.0, 0};
 	mode = 0;
 	button(mode);
 	for(;;){

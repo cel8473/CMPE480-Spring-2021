@@ -20,7 +20,8 @@
 #define CARPET (1)
 #define DESIRED_POSITION (53)
 #define DIFF_FACTOR (0.1)
-#define BOOST (1.5)
+#define BOOST (1.35)
+#define DAMP (1.1)
 
 typedef struct PID_S {
 	double turnAmt;
