@@ -1,9 +1,0 @@
-- Separate drving function for both wheels to be able to drive both wheels at different speeds and directions.
-- PID
-- Differential steering
-- Differential braking
-- Add weight to back to decrease drifting on turns
-- Tuning constants -
-    -- Servo duty cycle constants
-    -- Left / right constants when turning left / right
-    -- Deadzone on not turning
